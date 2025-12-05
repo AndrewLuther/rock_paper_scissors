@@ -1,0 +1,17 @@
+<p>home</p>
+<button id="create">Create game</button>
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+        console.log("DOM fully loaded and parsed");
+        const button = document.getElementById("create")
+        button.addEventListener("click", async () => {
+            const response = await fetch("/api/create-game", {
+                method: "POST"
+            });
+
+            const data = await response.json()
+            window.location = "/game/" + data.id
+        })
+
+    });
+</script>
