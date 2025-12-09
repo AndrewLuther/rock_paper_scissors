@@ -1,12 +1,8 @@
 <h1>game</h1>
 <h2>client id: </h2>
-<p id="client_id"></p>
+<p id="clientId"></p>
 
-<script>
-    // should I be using a cookie for this or something? Jack HELP
-    client_id = Math.random()
-    document.getElementById("client_id").innerText = client_id
-
+<script>    
     // Create WebSocket connection.
     const socket = new WebSocket("ws://localhost:3000");
 
@@ -14,11 +10,11 @@
 
     // Connection opened, this happens when someone creates a game and gets sent to a game page
     socket.addEventListener("open", (event) => {
-        room_id = window.location.pathname.split("/").slice(-1)[0]
+        gameId = window.location.pathname.split("/").slice(-1)[0]
         // send server info about the client that is connecting
         const clientInfo = {
-            client_id: client_id,
-            room_id: room_id
+            clientId,
+            gameId
         }
         socket.send(JSON.stringify(clientInfo));
     });
@@ -26,6 +22,7 @@
     // Listen for messages
     socket.addEventListener("message", (event) => {
         console.log("Message from server ", event.data);
+        document.getElementById("clientId").innerText = JSON.parse(event.data).clientId
     });
 
     document.addEventListener("DOMContentLoaded", (event) => {

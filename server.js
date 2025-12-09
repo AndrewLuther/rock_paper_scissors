@@ -1,60 +1,80 @@
-import express from "express"
-import path from "path"
+import express from "express";
+import path from "path";
 import { WebSocketServer } from "ws";
 
 const wss = new WebSocketServer({ noServer: true });
-const app = express()
-const port = 3000
+const app = express();
+const port = 3000;
 
-const rooms = new Map();
+const games = new Map();
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(import.meta.dirname, "home.html"))
-})
+app.get("/", (req, res) => {
+  res.sendFile(path.join(import.meta.dirname, "home.html"));
+});
 
-app.get('/game/:id', (req, res) => {
-  console.log(req.params.id)  
-  res.sendFile(path.join(import.meta.dirname, "game.html"))
-})
+app.get("/game/:id", (req, res) => {
+  const game = createGame(req.params.id);
 
-app.post('/api/create-game', (req, res) => {
+  console.log(req.params.id);
+  res.sendFile(path.join(import.meta.dirname, "game.html"));
+});
 
-    const room_id = createRoomId()
-    res.json({
-        id: room_id
-    })
-
-    if (!rooms.get(room_id)) {
-      rooms.set(room_id, new Set())
-    }
-})
+app.post("/api/create-game", (req, res) => {
+  const game = createGame();
+  res.json({
+    id: game.id,
+  });
+});
 
 wss.on("connection", (ws, request) => {
+  const clientId = Math.random()
+  ws.send(JSON.stringify({clientId}))
 
-  ws.on("message", msg => {
-    msg = JSON.parse(msg.toString())
-    const room_clients = rooms.get(msg.room_id)
-    room_clients.add(msg.client_id)
-    rooms.set(msg.room_id, room_clients)
+  ws.on("message", (msg) => {
+    msg = JSON.parse(msg.toString());
 
-    console.log(rooms)
+    const game = games.get(msg.gameId);
+
+    if (!game) {
+      console.log("Websocket requested a game that didn't exist.")
+      ws.close()
+      return 
+    }
+
+    game.clients.add(clientId);
+
+    console.log(games);
   });
 
   ws.on("close", () => {
-    console.log("closed")
+    console.log("closed");
   });
 });
 
 const server = app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
 
 server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, ws => {
+  wss.handleUpgrade(request, socket, head, (ws) => {
     wss.emit("connection", ws, request);
   });
 });
 
-function createRoomId() {
-  return "foo"
+function createGame(id=undefined) {
+  const existingGame = games.get(id)
+  if (existingGame) {return existingGame}
+
+  // otherwise make a game
+  const game = {
+    clients: new Set(),
+    id: id ? id : createGameId()
+  };
+
+  games.set(game.id, game);
+  return game
+}
+
+function createGameId() {
+  return "foo";
 }
