@@ -1,3 +1,7 @@
+<head>
+    <link rel="stylesheet" href="/main.css" />
+</head>
+
 <h1>game</h1>
 <h2>client id: </h2>
 <p id="clientId"></p>
@@ -13,16 +17,30 @@
         gameId = window.location.pathname.split("/").slice(-1)[0]
         // send server info about the client that is connecting
         const clientInfo = {
-            clientId,
-            gameId
+            gameId,
+            type:"join"
         }
         socket.send(JSON.stringify(clientInfo));
     });
 
+    // START websocket message handlers //
+    function handleHello(data) {
+            document.getElementById("clientId").innerText = data.clientId
+    }
+
+    // END websocket message handlers //
+
     // Listen for messages
     socket.addEventListener("message", (event) => {
-        console.log("Message from server ", event.data);
-        document.getElementById("clientId").innerText = JSON.parse(event.data).clientId
+
+        const data = JSON.parse(event.data)
+        console.log("Message from server ", data);
+
+        switch (data.type) {
+            case "hello":
+                handleHello(data)
+        }
+
     });
 
     document.addEventListener("DOMContentLoaded", (event) => {

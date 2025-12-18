@@ -20,6 +20,7 @@
   "homepage": "https://github.com/AndrewLuther/rock_paper_scissors#readme",
   "dependencies": {
     "express": "^5.2.1",
+    "uuid": "^13.0.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {

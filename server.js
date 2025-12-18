@@ -1,9 +1,11 @@
 import express from "express";
 import path from "path";
 import { WebSocketServer } from "ws";
+import { v4 as uuidv4 } from 'uuid';
 
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
+app.use(express.static(path.join(import.meta.dirname, 'public')))
 const port = 3000;
 
 const games = new Map();
@@ -26,14 +28,21 @@ app.post("/api/create-game", (req, res) => {
   });
 });
 
+app.get("/api/get-games", (req, res) => {
+  const gameList = []
+  for (const [key, value] of games.entries()){
+    gameList.push(key)
+  }
+  res.json(gameList)
+})
+
 wss.on("connection", (ws, request) => {
-  const clientId = Math.random()
-  ws.send(JSON.stringify({clientId}))
+  const clientId = uuidv4()
 
-  ws.on("message", (msg) => {
-    msg = JSON.parse(msg.toString());
+  let game
 
-    const game = games.get(msg.gameId);
+  function handleJoin(msg) {
+    game = games.get(msg.gameId);
 
     if (!game) {
       console.log("Websocket requested a game that didn't exist.")
@@ -41,13 +50,37 @@ wss.on("connection", (ws, request) => {
       return 
     }
 
+    // the first thing we send when someone first connects to the socket
+    // includes clientid and list of other clients in room
+    const helloPayload = {
+      clientId,
+      players: Array.from(game.clients),
+      type: "hello"
+    }
+    ws.send(JSON.stringify(helloPayload))
+
     game.clients.add(clientId);
 
     console.log(games);
+  }
+
+  ws.on("message", (msg) => {
+    msg = JSON.parse(msg.toString());
+    switch (msg.type){
+      case "join":
+        handleJoin(msg);
+        break;
+      
+      default:
+        console.log("Unknown message type.")
+        ws.close()
+    }
   });
 
   ws.on("close", () => {
-    console.log("closed");
+    if (game) {
+      game.clients.delete(clientId)
+    }
   });
 });
 
