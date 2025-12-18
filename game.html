@@ -2,19 +2,43 @@
     <link rel="stylesheet" href="/main.css" />
 </head>
 
-<h1>game</h1>
-<h2>client id: </h2>
-<p id="clientId"></p>
+<h1 class="header" id="gameHeader">game: </h1>
 
-<script>    
+<div class= "gameInfo" id="gameInfo">
+    <div class= "gameInfoSection" id="clientInfo">
+        <h2 class="gameInfoSectionLabel">client id: </h2>
+        <p class="clientId" id="clientId"></p>
+    </div>
+    <div class= "gameInfoSection" id="numPlayersInfo">
+        <h2 class="gameInfoSectionLabel">players:</h2>
+        <p class="numPlayers", id="numPlayers">1</p>
+    </div>
+</div>
+
+<div id="messageLog" class="messageLog"></div>
+
+<script>
+    const messages  = []    
+    function createMessage(message) {
+        const messageDiv = document.createElement("div")
+        const messageText = document.createElement("p")
+        messageText.innerText = message
+
+        messageDiv.appendChild(messageText)
+
+        const messageLog = document.getElementById("messageLog")
+        messageLog.appendChild(messageDiv)
+    }
     // Create WebSocket connection.
     const socket = new WebSocket("ws://localhost:3000");
 
     window.socket = socket
 
-    // Connection opened, this happens when someone creates a game and gets sent to a game page
+    // Connection opened, open a websocket now that someone is on the game page
     socket.addEventListener("open", (event) => {
         gameId = window.location.pathname.split("/").slice(-1)[0]
+        const gameHeader = document.getElementById("gameHeader")
+        gameHeader.textContent = "game: " + gameId
         // send server info about the client that is connecting
         const clientInfo = {
             gameId,
@@ -25,7 +49,17 @@
 
     // START websocket message handlers //
     function handleHello(data) {
-            document.getElementById("clientId").innerText = data.clientId
+        document.getElementById("clientId").innerText = data.clientId
+        document.getElementById("numPlayers").innerText = data.players.length
+    }
+
+    function handleJoin(data) {
+        // update number of displayed players
+        document.getElementById("numPlayers").innerText = data.numClients
+
+        // log a message saying that someone has joined
+        console.log("client " + data.joinId + " has joined!")
+        createMessage("client " + data.joinId + " has joined!")
     }
 
     // END websocket message handlers //
@@ -39,6 +73,13 @@
         switch (data.type) {
             case "hello":
                 handleHello(data)
+                break;
+            case "join":
+                handleJoin(data)
+                break;
+            default:
+                console.log("Unknown message type")
+                socket.close()
         }
 
     });

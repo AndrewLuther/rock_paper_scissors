@@ -50,6 +50,11 @@ wss.on("connection", (ws, request) => {
       return 
     }
 
+    game.clients.add({
+      id: clientId, 
+      websocket: ws
+    });
+
     // the first thing we send when someone first connects to the socket
     // includes clientid and list of other clients in room
     const helloPayload = {
@@ -59,7 +64,19 @@ wss.on("connection", (ws, request) => {
     }
     ws.send(JSON.stringify(helloPayload))
 
-    game.clients.add(clientId);
+    // need to broadcast to all other websockets that someone has joined
+    game.clients.forEach((client) => {
+      if (client.id != clientId) {
+        console.log("sending message to " + client.id)
+        const joinMessage = {
+          joinId: clientId,
+          numClients: game.clients.size,
+          type: "join"
+        }
+        console.log(joinMessage)
+        client.websocket.send(JSON.stringify(joinMessage))
+      }
+    })
 
     console.log(games);
   }
@@ -79,7 +96,13 @@ wss.on("connection", (ws, request) => {
 
   ws.on("close", () => {
     if (game) {
-      game.clients.delete(clientId)
+      // when a client closes (disconnects) we need to remove them from the server's
+      // list of clients for this game
+      game.clients.forEach((client) => {
+        if (client.id == clientId) {
+          game.clients.delete(client)
+        }
+      })
     }
   });
 });
