@@ -17,18 +17,13 @@
 
 <div id="messageLog" class="messageLog"></div>
 
+<div id="gameElements" class="gameElements"></div>
+
 <script>
-    const messages  = []    
-    function createMessage(message) {
-        const messageDiv = document.createElement("div")
-        const messageText = document.createElement("p")
-        messageText.innerText = message
+    const messages  = []
+    let messageNum = 0 
+    let gameStarted = false;
 
-        messageDiv.appendChild(messageText)
-
-        const messageLog = document.getElementById("messageLog")
-        messageLog.appendChild(messageDiv)
-    }
     // Create WebSocket connection.
     const socket = new WebSocket("ws://localhost:3000");
 
@@ -47,6 +42,69 @@
         socket.send(JSON.stringify(clientInfo));
     });
 
+    // START html generation 
+
+    function createMessage(message) {
+        const messageDiv = document.createElement("div")
+        messageDiv.className = "message"
+        messageDiv.id = "message" + messageNum
+        const messageText = document.createElement("p")
+        messageText.innerText = message
+        messageText.className = "messageText"
+
+        messageDiv.appendChild(messageText)
+
+        const messageLog = document.getElementById("messageLog")
+        messageLog.appendChild(messageDiv)
+
+        if ((messageDiv.offsetTop + messageDiv.offsetHeight) > (messageLog.offsetTop + messageLog.offsetHeight)) {
+            messages[0].remove()
+            messages.shift(); // removes first element from list
+        }
+
+        messages.push(messageDiv)
+        messageNum += 1;
+    }
+
+    function addGameElements() {
+        const rockButton = document.createElement("button")
+        rockButton.textContent = "rock"
+
+        const paperButton = document.createElement("button")
+        paperButton.textContent = "paper"
+
+        const scissorsButton = document.createElement("button")
+        scissorsButton.textContent = "scissors"
+
+        const gameElements = document.getElementById("gameElements")
+        gameElements.appendChild(rockButton)
+        gameElements.appendChild(paperButton)
+        gameElements.appendChild(scissorsButton)
+    }
+
+    function removeGameElements() {
+        const gameElements = document.getElementById("gameElements")
+        while (gameElements.firstChild) {
+            gameElements.removeChild(gameElements.firstChild);
+        }
+    }
+
+    // END html generation
+
+    function startGame() {
+        console.log("starting a game!")
+        createMessage("starting a game!")
+        addGameElements()
+        gameStarted = true
+    }
+
+    function endGame() {
+        console.log("ending the game!")
+        createMessage("ending the game!")
+        removeGameElements()
+        gameStarted = false
+    }
+
     // START websocket message handlers //
     function handleHello(data) {
         document.getElementById("clientId").innerText = data.clientId
@@ -60,9 +118,51 @@
         // log a message saying that someone has joined
         console.log("client " + data.joinId + " has joined!")
         createMessage("client " + data.joinId + " has joined!")
+
+        if (data.numClients == 2) {
+            startGame()
+        } else if (gameStarted) {
+            endGame()
+        }
+    }
+
+    function handleLeave(data) {
+        // update number of displayed players
+        document.getElementById("numPlayers").innerText = data.numClients
+        // log a message saying that someone has left
+        console.log("client " + data.leaveId + " has left!")
+        createMessage("client " + data.leaveId + " has left!")
+
+        if (data.numClients == 2) {
+            startGame()
+        } else if (gameStarted) {
+            endGame()
+        }
     }
 
     // END websocket message handlers //
+
+        function createMessage(message) {
+        const messageDiv = document.createElement("div")
+        messageDiv.className = "message"
+        messageDiv.id = "message" + messageNum
+        const messageText = document.createElement("p")
+        messageText.innerText = message
+        messageText.className = "messageText"
+
+        messageDiv.appendChild(messageText)
+
+        const messageLog = document.getElementById("messageLog")
+        messageLog.appendChild(messageDiv)
+
+        if ((messageDiv.offsetTop + messageDiv.offsetHeight) > (messageLog.offsetTop + messageLog.offsetHeight)) {
+            messages[0].remove()
+            messages.shift(); // removes first element from list
+        }
+
+        messages.push(messageDiv)
+        messageNum += 1;
+    }
 
     // Listen for messages
     socket.addEventListener("message", (event) => {
@@ -76,6 +176,9 @@
                 break;
             case "join":
                 handleJoin(data)
+                break;
+            case "leave":
+                handleLeave(data)
                 break;
             default:
                 console.log("Unknown message type")

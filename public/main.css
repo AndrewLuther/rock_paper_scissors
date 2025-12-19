@@ -40,9 +40,12 @@ body {
 
 .messageLog {
     width: auto;
-    background:#e4bca0;
+    background: #e4bca0;
     height: 12rem;
     border-radius: 1rem;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
 }
 
 button {
@@ -82,4 +85,13 @@ button:hover {
 
 .numPlayers {
     align-self: center;
+}
+
+.message {
+    padding: .5rem;
+    height: 2rem;
+}
+
+.messageText {
+    margin: 0;
 }

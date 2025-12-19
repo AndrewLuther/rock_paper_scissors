@@ -41,6 +41,15 @@ wss.on("connection", (ws, request) => {
 
   let game
 
+  // broadcast a message to all clients connected to the specified game
+  function broadcast(msg, game) {
+    game.clients.forEach((client) => {
+      if (client.id != clientId) {
+        client.websocket.send(JSON.stringify(msg))
+      }
+    })
+  }
+
   function handleJoin(msg) {
     game = games.get(msg.gameId);
 
@@ -65,20 +74,12 @@ wss.on("connection", (ws, request) => {
     ws.send(JSON.stringify(helloPayload))
 
     // need to broadcast to all other websockets that someone has joined
-    game.clients.forEach((client) => {
-      if (client.id != clientId) {
-        console.log("sending message to " + client.id)
-        const joinMessage = {
-          joinId: clientId,
-          numClients: game.clients.size,
-          type: "join"
-        }
-        console.log(joinMessage)
-        client.websocket.send(JSON.stringify(joinMessage))
-      }
-    })
-
-    console.log(games);
+    const joinMessage = {
+      joinId: clientId,
+      numClients: game.clients.size,
+      type: "join"
+    }
+    broadcast(joinMessage, game)
   }
 
   ws.on("message", (msg) => {
@@ -103,6 +104,14 @@ wss.on("connection", (ws, request) => {
           game.clients.delete(client)
         }
       })
+
+      const leaveMessage = {
+        leaveId: clientId,
+        numClients: game.clients.size,
+        type: "leave"
+      }
+
+      broadcast(leaveMessage, game)
     }
   });
 });
