@@ -21,7 +21,7 @@ body {
 
 .games {
     text-align: center;
-    background: saddlebrown;
+    background: #e4bca0;
     margin: 2rem;
     border-radius: 0.5rem;
 }
@@ -31,11 +31,16 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
 }
 
 .gameTitle {
-    margin-top: 0rem;
-    margin-bottom: 0.5rem;
+    margin-left: 1rem;
+}
+
+.gamePlayers {
+    margin-left: auto;
+    margin-right: 2rem;
 }
 
 .messageLog {

@@ -79,6 +79,7 @@
                 type: "select"
             }
             window.socket.send(JSON.stringify(gameMessage))
+            removeGameElements()
         })
 
         const gameElements = document.getElementById("gameElements")
@@ -145,6 +146,7 @@
             console.log("It's a tie!")
             createMessage("It's a tie!")
         }
+        addGameOptions()
     }
 
     // END websocket message handlers //

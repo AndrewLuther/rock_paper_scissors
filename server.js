@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from 'uuid';
+import { readFileSync } from 'node:fs';
 
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
@@ -30,8 +31,12 @@ app.post("/api/create-game", (req, res) => {
 
 app.get("/api/get-games", (req, res) => {
   const gameList = []
-  for (const [key, value] of games.entries()){
-    gameList.push(key)
+  for (const [gameId, game] of games.entries()){
+    const gameInfo = {
+      id: gameId,
+      numPlayers: game.clients.size
+    }
+    gameList.push(gameInfo)
   }
   res.json(gameList)
 })
@@ -239,5 +244,21 @@ function createGame(id=undefined) {
 }
 
 function createGameId() {
-  return "foo";
+  
+  const nounsBuffer = readFileSync("nouns.txt");
+  const nouns = nounsBuffer.toString().split("\n");
+
+  const adjBuffer = readFileSync("adjectives.txt");
+  const adjectives = adjBuffer.toString().split("\n");
+
+  let gameId;
+
+  while (!gameId || games.has(gameId)) {
+    const random_noun = nouns[Math.floor(Math.random()*nouns.length)];
+    const random_adjective = adjectives[Math.floor(Math.random()*adjectives.length)];
+    gameId = random_adjective + "-" + random_noun;
+  }
+
+  console.log("game name is " + gameId)
+  return gameId;
 }
