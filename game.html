@@ -21,22 +21,22 @@
 
 <script>
     const messages  = []
-    let messageNum = 0 
-    let gameStarted = false;
+    let messageNum = 0;
 
     // Create WebSocket connection.
     const socket = new WebSocket("ws://localhost:3000");
 
     window.socket = socket
+    window.gameId = window.location.pathname.split("/").slice(-1)[0];
+    window.clientId = undefined; // this gets set when hello payload is received from server
 
     // Connection opened, open a websocket now that someone is on the game page
     socket.addEventListener("open", (event) => {
-        gameId = window.location.pathname.split("/").slice(-1)[0]
         const gameHeader = document.getElementById("gameHeader")
-        gameHeader.textContent = "game: " + gameId
+        gameHeader.textContent = "game: " + window.gameId
         // send server info about the client that is connecting
         const clientInfo = {
-            gameId,
+            gameId: window.gameId,
             type:"join"
         }
         socket.send(JSON.stringify(clientInfo));
@@ -66,20 +66,29 @@
         messageNum += 1;
     }
 
-    function addGameElements() {
-        const rockButton = document.createElement("button")
-        rockButton.textContent = "rock"
+    function addGameOption(optionName) {
+        const gameButton = document.createElement("button")
 
-        const paperButton = document.createElement("button")
-        paperButton.textContent = "paper"
-
-        const scissorsButton = document.createElement("button")
-        scissorsButton.textContent = "scissors"
+        gameButton.textContent = optionName
+        gameButton.className = "gameButton"
+        gameButton.addEventListener("click", async () => {
+            console.log("selected " + optionName + "!");
+            const gameMessage = {
+                clientId: window.clientId,
+                optionName,
+                type: "select"
+            }
+            window.socket.send(JSON.stringify(gameMessage))
+        })
 
         const gameElements = document.getElementById("gameElements")
-        gameElements.appendChild(rockButton)
-        gameElements.appendChild(paperButton)
-        gameElements.appendChild(scissorsButton)
+        gameElements.appendChild(gameButton);
+    }
+
+    function addGameOptions() {
+        addGameOption("rock");
+        addGameOption("paper");
+        addGameOption("scissors");
     }
 
     function removeGameElements() {
@@ -91,22 +100,9 @@
 
     // END html generation
 
-    function startGame() {
-        console.log("starting a game!")
-        createMessage("starting a game!")
-        addGameElements()
-        gameStarted = true
-    }
-
-    function endGame() {
-        console.log("ending the game!")
-        createMessage("ending the game!")
-        removeGameElements()
-        gameStarted = false
-    }
-
     // START websocket message handlers //
     function handleHello(data) {
+        window.clientId = data.clientId
         document.getElementById("clientId").innerText = data.clientId
         document.getElementById("numPlayers").innerText = data.players.length
     }
@@ -118,12 +114,18 @@
         // log a message saying that someone has joined
         console.log("client " + data.joinId + " has joined!")
         createMessage("client " + data.joinId + " has joined!")
+    }
 
-        if (data.numClients == 2) {
-            startGame()
-        } else if (gameStarted) {
-            endGame()
-        }
+    function handleGameStart(data) {
+        console.log("Game started!");
+        createMessage("Game started!");
+        addGameOptions();
+    }
+
+    function handleGameEnd(data) {
+        console.log("Game ended!");
+        createMessage("Game ended!")
+        removeGameElements();
     }
 
     function handleLeave(data) {
@@ -132,11 +134,16 @@
         // log a message saying that someone has left
         console.log("client " + data.leaveId + " has left!")
         createMessage("client " + data.leaveId + " has left!")
+    }
 
-        if (data.numClients == 2) {
-            startGame()
-        } else if (gameStarted) {
-            endGame()
+    function handleResult(data) {
+        console.log(data.winner)
+        if (data.winner) {
+            console.log(data.winner + " wins!")
+            createMessage(data.winner + " wins!")
+        } else {
+            console.log("It's a tie!")
+            createMessage("It's a tie!")
         }
     }
 
@@ -179,6 +186,15 @@
                 break;
             case "leave":
                 handleLeave(data)
+                break;
+            case "gameStart":
+                handleGameStart(data)
+                break;
+            case "gameEnd":
+                handleGameEnd(data)
+                break;
+            case "result":
+                handleResult(data);
                 break;
             default:
                 console.log("Unknown message type")

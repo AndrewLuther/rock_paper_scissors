@@ -42,12 +42,81 @@ wss.on("connection", (ws, request) => {
   let game
 
   // broadcast a message to all clients connected to the specified game
-  function broadcast(msg, game) {
+  function broadcastOthers(msg) {
     game.clients.forEach((client) => {
       if (client.id != clientId) {
         client.websocket.send(JSON.stringify(msg))
       }
     })
+  }
+
+  function broadcastAll(msg) {
+    game.clients.forEach((client) => {
+      client.websocket.send(JSON.stringify(msg))
+    })
+  }
+
+  function startGame() {
+    game.started = true;
+    const startMsg = {
+      type: "gameStart"
+    }
+    broadcastAll(startMsg);
+  }
+
+  function endGame() {
+    game.started = false;
+    const endMsg = {
+      type: "gameEnd"
+    }
+    broadcastAll(endMsg);
+  }
+
+  function calculateResult() {
+
+    const clientArray = Array.from(game.clients);
+    const client1 = clientArray[0];
+    const client2 = clientArray[1];
+
+    const player1Selection = game.selections[client1.id];
+    const player2Selection = game.selections[client2.id];
+
+    let winner
+
+    if (didPlayerWin(player1Selection, player2Selection)) {
+      winner = client1.id
+      console.log(client1.id + " wins!")
+    } else if (didPlayerWin(player2Selection, player1Selection)) {
+      winner = client2.id
+      console.log(client2.id + " wins!")
+    } else {
+      winner = undefined;
+      console.log("It's a draw!")
+    }
+
+    game.selections = {};
+
+    const resultMessage = {
+      winner,
+      type: "result"
+    }
+    broadcastAll(resultMessage)
+  }
+
+  function didPlayerWin(selection, otherSelection) {
+    if (selection == "rock" && otherSelection == "scissors") {
+      return true
+    }
+
+    if (selection == "paper" && otherSelection == "rock") {
+      return true
+    }
+
+    if (selection == "scissors" && otherSelection == "paper") {
+      return true
+    }
+
+    return false
   }
 
   function handleJoin(msg) {
@@ -79,7 +148,25 @@ wss.on("connection", (ws, request) => {
       numClients: game.clients.size,
       type: "join"
     }
-    broadcast(joinMessage, game)
+    broadcastOthers(joinMessage)
+
+    if (game.clients.size == 2) {
+      startGame();
+    } else if (game.started) {
+      console.log("Game ended because too many players!")
+      endGame();
+    }
+  }
+
+  function handleSelect(msg) {
+    console.log(msg.clientId + " from game " + 
+      game.id + " has selected " + msg.optionName + "!")
+
+    game.selections[msg.clientId] = msg.optionName
+
+    if (Object.keys(game.selections).length == 2) {
+      calculateResult()
+    }
   }
 
   ws.on("message", (msg) => {
@@ -88,7 +175,9 @@ wss.on("connection", (ws, request) => {
       case "join":
         handleJoin(msg);
         break;
-      
+      case "select":
+        handleSelect(msg);
+        break;
       default:
         console.log("Unknown message type.")
         ws.close()
@@ -111,7 +200,14 @@ wss.on("connection", (ws, request) => {
         type: "leave"
       }
 
-      broadcast(leaveMessage, game)
+      broadcastOthers(leaveMessage);
+
+      if (game.clients.size == 2) {
+        startGame();
+      } else if (game.started) {
+        console.log("Game ended because someone left!")
+        endGame();
+      }
     }
   });
 });
@@ -133,6 +229,8 @@ function createGame(id=undefined) {
   // otherwise make a game
   const game = {
     clients: new Set(),
+    started: false,
+    selections: {},
     id: id ? id : createGameId()
   };
 

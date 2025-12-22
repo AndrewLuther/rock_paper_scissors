@@ -95,3 +95,14 @@ button:hover {
 .messageText {
     margin: 0;
 }
+
+.gameElements {
+    display: flex;
+    justify-content: center;
+}
+
+.gameButton {
+    margin: 2rem;
+    width: 10rem;
+    height: 2rem;
+}
