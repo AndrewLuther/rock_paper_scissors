@@ -2,8 +2,32 @@
     <link rel="stylesheet" href="/main.css" />
 </head>
 
-<h1 class="header" id="gameHeader">game: </h1>
 
+
+<div class="main" id="main">
+
+    <div class="gameInfoSection">
+        <div class="gameInfo">
+            <h1 class="header" id="gameHeader">game: </h1>
+            <div class= "players" id="numPlayersInfo">
+                <h2 class="gameInfoSectionLabel">players:</h2>
+                <p class="numPlayers", id="numPlayers">1</p>
+            </div>
+        </div>
+        
+        <div id="messageLog" class="messageLog"></div>
+    </div>
+
+    <div id="gameUI" class="gameUI">
+        <h1 id="gameInfoText" class="gameInfoText">Waiting for another player to join...</h1>
+        <div id="gameElements" class="gameElements"></div>
+    </div>
+
+
+</div>
+
+
+<!-- 
 <div class= "gameInfo" id="gameInfo">
     <div class= "gameInfoSection" id="clientInfo">
         <h2 class="gameInfoSectionLabel">client id: </h2>
@@ -13,11 +37,9 @@
         <h2 class="gameInfoSectionLabel">players:</h2>
         <p class="numPlayers", id="numPlayers">1</p>
     </div>
-</div>
+</div> -->
 
-<div id="messageLog" class="messageLog"></div>
 
-<div id="gameElements" class="gameElements"></div>
 
 <script>
     const messages  = []
@@ -26,17 +48,16 @@
     // Create WebSocket connection.
     const socket = new WebSocket("ws://localhost:3000");
 
-    window.socket = socket
-    window.gameId = window.location.pathname.split("/").slice(-1)[0];
-    window.clientId = undefined; // this gets set when hello payload is received from server
+    const gameId = window.location.pathname.split("/").slice(-1)[0];
+    let clientId = undefined; // this gets set when hello payload is received from server
 
     // Connection opened, open a websocket now that someone is on the game page
     socket.addEventListener("open", (event) => {
         const gameHeader = document.getElementById("gameHeader")
-        gameHeader.textContent = "game: " + window.gameId
+        gameHeader.textContent = "game: " + gameId
         // send server info about the client that is connecting
         const clientInfo = {
-            gameId: window.gameId,
+            gameId: gameId,
             type:"join"
         }
         socket.send(JSON.stringify(clientInfo));
@@ -74,12 +95,13 @@
         gameButton.addEventListener("click", async () => {
             console.log("selected " + optionName + "!");
             const gameMessage = {
-                clientId: window.clientId,
+                clientId,
                 optionName,
                 type: "select"
             }
-            window.socket.send(JSON.stringify(gameMessage))
+            socket.send(JSON.stringify(gameMessage))
             removeGameElements()
+            updateGameInfoText("Waiting for other player to choose...")
         })
 
         const gameElements = document.getElementById("gameElements")
@@ -90,6 +112,11 @@
         addGameOption("rock");
         addGameOption("paper");
         addGameOption("scissors");
+    }
+
+    function updateGameInfoText(newText) {
+        const gameInfoText = document.getElementById("gameInfoText");
+        gameInfoText.textContent = newText
     }
 
     function removeGameElements() {
@@ -103,7 +130,7 @@
 
     // START websocket message handlers //
     function handleHello(data) {
-        window.clientId = data.clientId
+        clientId = data.clientId
         document.getElementById("clientId").innerText = data.clientId
         document.getElementById("numPlayers").innerText = data.players.length
     }
@@ -114,19 +141,21 @@
 
         // log a message saying that someone has joined
         console.log("client " + data.joinId + " has joined!")
-        createMessage("client " + data.joinId + " has joined!")
+        createMessage("Another player has joined!")
     }
 
     function handleGameStart(data) {
         console.log("Game started!");
         createMessage("Game started!");
         addGameOptions();
+        updateGameInfoText("Choose your weapon!")
     }
 
     function handleGameEnd(data) {
         console.log("Game ended!");
         createMessage("Game ended!")
         removeGameElements();
+        updateGameInfoText("Waiting for another player to join...")
     }
 
     function handleLeave(data) {
@@ -134,24 +163,30 @@
         document.getElementById("numPlayers").innerText = data.numClients
         // log a message saying that someone has left
         console.log("client " + data.leaveId + " has left!")
-        createMessage("client " + data.leaveId + " has left!")
+        createMessage("A player has left!")
     }
 
     function handleResult(data) {
         console.log(data.winner)
         if (data.winner) {
-            console.log(data.winner + " wins!")
-            createMessage(data.winner + " wins!")
+            if (clientId == data.winner) {
+                console.log("You win!")
+                createMessage("You win!")
+            } else {
+                console.log("You lose!")
+                createMessage("You lose!")
+            }
         } else {
             console.log("It's a tie!")
             createMessage("It's a tie!")
         }
         addGameOptions()
+        updateGameInfoText("Choose your weapon!")
     }
 
     // END websocket message handlers //
 
-        function createMessage(message) {
+    function createMessage(message) {
         const messageDiv = document.createElement("div")
         messageDiv.className = "message"
         messageDiv.id = "message" + messageNum

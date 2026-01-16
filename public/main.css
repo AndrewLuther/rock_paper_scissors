@@ -14,6 +14,8 @@ body {
     padding: 1rem;
 }
 
+
+
 .create-game {
     margin: auto;
     text-align: center;
@@ -44,12 +46,12 @@ body {
 }
 
 .messageLog {
-    width: auto;
+    width: 40%;
     background: #e4bca0;
     height: 12rem;
     border-radius: 1rem;
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     flex-direction: column;
 }
 
@@ -69,19 +71,13 @@ button:hover {
     transition: 0.2s;
 }
 
-.gameInfo {
-    padding: 1rem;
-    display: flex;
-}
-
 .gameInfoSection {
     display: flex;
-    width: 50%;
-    justify-content: flex-end;
-}
-
-.gameInfoSectionLabel {
-    width: 50%;   
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    justify-content: space-between;
+    width: 90%;
+    margin: auto;
 }
 
 .clientId {
@@ -90,11 +86,16 @@ button:hover {
 
 .numPlayers {
     align-self: center;
+    padding-left: 2rem;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .message {
     padding: .5rem;
+    padding-right: 1.5rem;
     height: 2rem;
+    text-align: right;
 }
 
 .messageText {
@@ -110,4 +111,40 @@ button:hover {
     margin: 2rem;
     width: 10rem;
     height: 2rem;
+}
+
+.main {
+    display:flex;
+    flex-direction: column;
+}
+
+.gameInfo {
+    background: #e4bca0;
+    border-radius: 1rem;
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.gameUI {
+    height: 30rem;
+    display: flex;
+    background: #e4bca0;
+    border-radius: 1rem;
+    width: 90%;
+    margin: auto;
+    flex-direction: column;
+}
+
+.players {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1.5rem;
+}
+
+.gameInfoText {
+    color: saddlebrown;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
 }

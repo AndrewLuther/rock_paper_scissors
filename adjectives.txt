@@ -20,3 +20,5 @@ regal
 sinister
 vicious
 viscous
+zany
+bootleg

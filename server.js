@@ -246,10 +246,10 @@ function createGame(id=undefined) {
 function createGameId() {
   
   const nounsBuffer = readFileSync("nouns.txt");
-  const nouns = nounsBuffer.toString().split("\n");
+  const nouns = nounsBuffer.toString().split(/\r?\n/);
 
   const adjBuffer = readFileSync("adjectives.txt");
-  const adjectives = adjBuffer.toString().split("\n");
+  const adjectives = adjBuffer.toString().split(/\r?\n/);
 
   let gameId;
 
