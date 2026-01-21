@@ -4,6 +4,13 @@ import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'node:fs';
 
+type Game = {
+  clients: Set<any>; // this type could be more specific
+  started: boolean;
+  selections: object; // this type could be more specific
+  id: string
+}
+
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
 app.use(express.static(path.join(import.meta.dirname, 'public')))
@@ -44,7 +51,7 @@ app.get("/api/get-games", (req, res) => {
 wss.on("connection", (ws, request) => {
   const clientId = uuidv4()
 
-  let game
+  let game: Game
 
   // broadcast a message to all clients connected to the specified game
   function broadcastOthers(msg) {
@@ -174,6 +181,15 @@ wss.on("connection", (ws, request) => {
     }
   }
 
+  function handleHomepageJoin(msg) {
+    console.log("Someone is on the homepage")
+    // the first thing we send when someone first connects to the socket
+    // includes clientid and list of other clients in room
+    const helloPayload = {
+      type: "hello"
+    }
+  }
+
   ws.on("message", (msg) => {
     msg = JSON.parse(msg.toString());
     switch (msg.type){
@@ -182,6 +198,9 @@ wss.on("connection", (ws, request) => {
         break;
       case "select":
         handleSelect(msg);
+        break;
+      case "homepageJoin":
+        handleHomepageJoin(msg);
         break;
       default:
         console.log("Unknown message type.")
@@ -227,7 +246,7 @@ server.on("upgrade", (request, socket, head) => {
   });
 });
 
-function createGame(id=undefined) {
+function createGame(id=undefined) :Game {
   const existingGame = games.get(id)
   if (existingGame) {return existingGame}
 

@@ -1,5 +1,12 @@
 * {
     font-family: 'Courier New', Courier, monospace;
+    color: var(--text-color);
+}
+
+:root {
+  --main-bg-color: #ffead8;
+  --panel-bg-color: #e4bca0;
+  --text-color: saddlebrown
 }
 
 body {
@@ -7,7 +14,6 @@ body {
 }
 
 .header {
-    color: saddlebrown;
     align-items: center;
     margin: auto;
     text-align: center;
@@ -20,7 +26,7 @@ body {
     margin: auto;
     text-align: center;
 }
-
+ 
 .games {
     text-align: center;
     background: #e4bca0;
@@ -143,7 +149,6 @@ button:hover {
 }
 
 .gameInfoText {
-    color: saddlebrown;
     align-items: center;
     text-align: center;
     padding: 1rem;

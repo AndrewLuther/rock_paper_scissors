@@ -10,6 +10,16 @@
 
 <div id="games" class="games"></div>
 <script>
+
+    // Create WebSocket connection.
+    const socket = new WebSocket("ws://localhost:3000");
+    socket.addEventListener("open", (event) => {
+        const clientInfo = {
+            type:"homepageJoin"
+        }
+        socket.send(JSON.stringify(clientInfo));
+    });
+
     function makeGameDiv(gameObject) {
         const div = document.createElement("div");
         div.className = "game"
