@@ -89,9 +89,8 @@
 
     function addGameOption(optionName) {
         const gameButton = document.createElement("button")
-
-        gameButton.textContent = optionName
         gameButton.className = "gameButton"
+        gameButton.class = "fade-in"
         gameButton.addEventListener("click", async () => {
             console.log("selected " + optionName + "!");
             const gameMessage = {
@@ -103,6 +102,12 @@
             removeGameElements()
             updateGameInfoText("Waiting for other player to choose...")
         })
+
+        const img = document.createElement("img")
+        img.src="/images/" + optionName + ".png"
+        img.className = "weaponImage"
+
+        gameButton.appendChild(img)
 
         const gameElements = document.getElementById("gameElements")
         gameElements.appendChild(gameButton);

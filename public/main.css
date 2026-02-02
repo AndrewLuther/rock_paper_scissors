@@ -115,8 +115,10 @@ button:hover {
 
 .gameButton {
     margin: 2rem;
-    width: 10rem;
-    height: 2rem;
+    width: auto;
+    height: auto;
+    flex-direction: column;
+    align-items: center;
 }
 
 .main {
@@ -152,4 +154,25 @@ button:hover {
     align-items: center;
     text-align: center;
     padding: 1rem;
+}
+
+.weaponImage {
+    width:75%;
+}
+
+.fade-in {
+	opacity: 1;
+	animation-name: fadeInOpacity;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-in;
+	animation-duration: 2s;
+}
+
+@keyframes fadeInOpacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
 }
