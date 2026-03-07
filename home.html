@@ -28,16 +28,35 @@
         });
     }
 
+    function handleNewGame(data) {
+        const gamesDiv = document.getElementById("games");
+        const div = makeGameDiv(data.newGame)
+        gamesDiv.appendChild(div)
+    }
+
+    function handleGameJoin(data) {
+        const gamesDiv = document.getElementById("games");
+        for (const gameDiv of gamesDiv.children) {
+            if (gameDiv.id === data.gameid) {
+                const gamePlayers = gameDiv.getElementsByClassName("gamePlayers")[0]
+                gamePlayers.innerText = "players: " + data.numClients + "/2";
+            } 
+        }
+    }
+
     // Listen for messages
     socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data)
         console.log("Message from server ", data);
-        switch (data.type){
+        switch (data.type) {
             case "hello":
                 handleHello(data)
                 break;
             case "newGame":
-                console.log("a new game started")
+                handleNewGame(data)
+                break;
+            case "playerNumberUpdate":
+                handleGameJoin(data)
                 break;
             default:
                 console.log("Unknown message type")
@@ -48,6 +67,7 @@
     function makeGameDiv(gameObject) {
         const div = document.createElement("div");
         div.className = "game"
+        div.id = gameObject.id
 
         const gameTitle = document.createElement("h2")
         gameTitle.innerText = gameObject.id

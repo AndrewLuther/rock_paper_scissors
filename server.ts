@@ -182,6 +182,14 @@ wss.on("connection", (ws, request) => {
     }
     broadcastOthers(joinMessage)
 
+    const homepageJoinMessage = {
+      type: "playerNumberUpdate",
+      gameid: game.id,
+      numClients: game.clients.size
+    }
+
+    broadcastHomepage(homepageJoinMessage)
+
     if (game.clients.size == 2) {
       startGame();
     } else if (game.started) {
@@ -265,6 +273,14 @@ wss.on("connection", (ws, request) => {
 
       broadcastOthers(leaveMessage);
 
+      const homepageLeaveMessage = {
+        type: "playerNumberUpdate",
+        gameid: game.id,
+        numClients: game.clients.size
+      }
+
+      broadcastHomepage(homepageLeaveMessage)
+
       if (game.clients.size == 2) {
         startGame();
       } else if (game.started) {
@@ -298,7 +314,11 @@ function createGame(id?:string) :Game {
   };
 
   const newGameMessage = {
-    type:"newGame"
+    type:"newGame",
+    newGame: {
+      id: game.id,
+      numPlayers: game.clients.size
+    }
   }
   broadcastHomepage(newGameMessage)
 
