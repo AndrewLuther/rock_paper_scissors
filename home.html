@@ -20,6 +20,31 @@
         socket.send(JSON.stringify(clientInfo));
     });
 
+    function handleHello(data) {
+        const gamesDiv = document.getElementById("games")
+        data.gameList.forEach((game) => {
+            const div = makeGameDiv(game)
+            gamesDiv.appendChild(div)
+        });
+    }
+
+    // Listen for messages
+    socket.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data)
+        console.log("Message from server ", data);
+        switch (data.type){
+            case "hello":
+                handleHello(data)
+                break;
+            case "newGame":
+                console.log("a new game started")
+                break;
+            default:
+                console.log("Unknown message type")
+                socket.close()
+        }
+    });
+
     function makeGameDiv(gameObject) {
         const div = document.createElement("div");
         div.className = "game"
@@ -60,17 +85,17 @@
             window.location = "/game/" + data.id
         })
 
-        // Create the list of games
-        const response = await fetch("/api/get-games", {
-            method: "GET"
-        });
+        // // Create the list of games
+        // const response = await fetch("/api/get-games", {
+        //     method: "GET"
+        // });
 
-        const games = await response.json()
+        // const games = await response.json()
         
-        const gamesDiv = document.getElementById("games")
-        games.forEach((game) => {
-            const div = makeGameDiv(game)
-            gamesDiv.appendChild(div)
-        });
+        // const gamesDiv = document.getElementById("games")
+        // games.forEach((game) => {
+        //     const div = makeGameDiv(game)
+        //     gamesDiv.appendChild(div)
+        // });
     });
 </script>

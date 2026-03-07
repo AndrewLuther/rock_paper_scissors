@@ -1,14 +1,26 @@
 import express from "express";
 import path from "path";
-import { WebSocketServer } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'node:fs';
 
+type Client = {
+  id:string,
+  websocket:WebSocket
+}
+
 type Game = {
-  clients: Set<any>; // this type could be more specific
+  clients: Set<Client>; // this type could be more specific
   started: boolean;
-  selections: object; // this type could be more specific
+  selections: Record<string, "rock" | "paper" | "scissors">;
   id: string
+}
+
+type ClientMessage = {
+  type: string,
+  clientId: string,
+  optionName: "rock" | "paper" | "scissors",
+  gameId: string
 }
 
 const wss = new WebSocketServer({ noServer: true });
@@ -17,6 +29,14 @@ app.use(express.static(path.join(import.meta.dirname, 'public')))
 const port = 3000;
 
 const games = new Map();
+
+const homepageClients:Array<Client> = [];
+
+function broadcastHomepage(msg:object) {
+  homepageClients.forEach((client) => {
+    client.websocket.send(JSON.stringify(msg))
+  })
+}
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(import.meta.dirname, "home.html"));
@@ -54,7 +74,7 @@ wss.on("connection", (ws, request) => {
   let game: Game
 
   // broadcast a message to all clients connected to the specified game
-  function broadcastOthers(msg) {
+  function broadcastOthers(msg:object) {
     game.clients.forEach((client) => {
       if (client.id != clientId) {
         client.websocket.send(JSON.stringify(msg))
@@ -62,7 +82,7 @@ wss.on("connection", (ws, request) => {
     })
   }
 
-  function broadcastAll(msg) {
+  function broadcastAll(msg:object) {
     game.clients.forEach((client) => {
       client.websocket.send(JSON.stringify(msg))
     })
@@ -115,7 +135,7 @@ wss.on("connection", (ws, request) => {
     broadcastAll(resultMessage)
   }
 
-  function didPlayerWin(selection, otherSelection) {
+  function didPlayerWin(selection:"rock" | "paper" | "scissors", otherSelection:"rock" | "paper" | "scissors") {
     if (selection == "rock" && otherSelection == "scissors") {
       return true
     }
@@ -131,7 +151,7 @@ wss.on("connection", (ws, request) => {
     return false
   }
 
-  function handleJoin(msg) {
+  function handleJoin(msg:ClientMessage) {
     game = games.get(msg.gameId);
 
     if (!game) {
@@ -170,7 +190,7 @@ wss.on("connection", (ws, request) => {
     }
   }
 
-  function handleSelect(msg) {
+  function handleSelect(msg:ClientMessage) {
     console.log(msg.clientId + " from game " + 
       game.id + " has selected " + msg.optionName + "!")
 
@@ -181,16 +201,35 @@ wss.on("connection", (ws, request) => {
     }
   }
 
-  function handleHomepageJoin(msg) {
+  function handleHomepageJoin(msg:ClientMessage) {
     console.log("Someone is on the homepage")
-    // the first thing we send when someone first connects to the socket
-    // includes clientid and list of other clients in room
-    const helloPayload = {
-      type: "hello"
+
+    // add the client to the list of clients on the homepage
+    homepageClients.push({
+      id: clientId,
+      websocket:ws
+    })
+
+    // get the list of games together
+    const gameList = []
+    for (const [gameId, game] of games.entries()){
+      const gameInfo = {
+        id: gameId,
+        numPlayers: game.clients.size
+      }
+      gameList.push(gameInfo)
     }
+
+    // send back a message with the list of games
+    const helloPayload = {
+      type: "hello",
+      gameList: gameList
+    }
+
+    ws.send(JSON.stringify(helloPayload))
   }
 
-  ws.on("message", (msg) => {
+  ws.on("message", (msg:ClientMessage) => {
     msg = JSON.parse(msg.toString());
     switch (msg.type){
       case "join":
@@ -246,17 +285,22 @@ server.on("upgrade", (request, socket, head) => {
   });
 });
 
-function createGame(id=undefined) :Game {
+function createGame(id?:string) :Game {
   const existingGame = games.get(id)
   if (existingGame) {return existingGame}
 
   // otherwise make a game
   const game = {
-    clients: new Set(),
+    clients: new Set<Client>(),
     started: false,
     selections: {},
     id: id ? id : createGameId()
   };
+
+  const newGameMessage = {
+    type:"newGame"
+  }
+  broadcastHomepage(newGameMessage)
 
   games.set(game.id, game);
   return game
