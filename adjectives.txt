@@ -22,3 +22,5 @@ vicious
 viscous
 zany
 bootleg
+fancy
+fumbling

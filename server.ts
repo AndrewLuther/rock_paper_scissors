@@ -30,6 +30,7 @@ const port = 3000;
 
 const games = new Map();
 
+// this should be a map from id to websocket, and need to remove client when they leave homepage
 const homepageClients:Array<Client> = [];
 
 function broadcastHomepage(msg:object) {

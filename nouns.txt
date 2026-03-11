@@ -22,3 +22,5 @@ fool
 jam
 syrup
 jug
+porcupine
+platypus
