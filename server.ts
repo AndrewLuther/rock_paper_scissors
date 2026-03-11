@@ -10,7 +10,7 @@ type Client = {
 }
 
 type Game = {
-  clients: Set<Client>; // this type could be more specific
+  clients: Set<Client>;
   started: boolean;
   selections: Record<string, "rock" | "paper" | "scissors">;
   id: string
@@ -23,19 +23,25 @@ type ClientMessage = {
   gameId: string
 }
 
+type GameInfo = {
+  id: string,
+  numPlayers:BigInt
+}
+
 const wss = new WebSocketServer({ noServer: true });
 const app = express();
 app.use(express.static(path.join(import.meta.dirname, 'public')))
 const port = 3000;
 
-const games = new Map();
+const games= new Map();
 
-// this should be a map from id to websocket, and need to remove client when they leave homepage
-const homepageClients:Array<Client> = [];
+// a map of all clients on the homepage of the app, so message can be specifically
+// broadcasted to homepage clients
+const homepageClients: Map<string, WebSocket> = new Map<string, WebSocket>();
 
 function broadcastHomepage(msg:object) {
-  homepageClients.forEach((client) => {
-    client.websocket.send(JSON.stringify(msg))
+  homepageClients.forEach((ws, clientId) => {
+    ws.send(JSON.stringify(msg))
   })
 }
 
@@ -57,22 +63,24 @@ app.post("/api/create-game", (req, res) => {
   });
 });
 
-app.get("/api/get-games", (req, res) => {
-  const gameList = []
-  for (const [gameId, game] of games.entries()){
-    const gameInfo = {
-      id: gameId,
-      numPlayers: game.clients.size
-    }
-    gameList.push(gameInfo)
-  }
-  res.json(gameList)
-})
+// app.get("/api/get-games", (req, res) => {
+//   const gameList:Array<GameInfo> = []
+//   for (const [gameId, game] of games.entries()){
+//     const gameInfo = {
+//       id: gameId,
+//       numPlayers: game.clients.size
+//     }
+//     gameList.push(gameInfo)
+//   }
+//   res.json(gameList)
+// })
 
 wss.on("connection", (ws, request) => {
   const clientId = uuidv4()
 
+  // these are defined per websocket connection
   let game: Game
+  let onHomepage:boolean = false
 
   // broadcast a message to all clients connected to the specified game
   function broadcastOthers(msg:object) {
@@ -153,6 +161,7 @@ wss.on("connection", (ws, request) => {
   }
 
   function handleJoin(msg:ClientMessage) {
+    onHomepage = false
     game = games.get(msg.gameId);
 
     if (!game) {
@@ -211,16 +220,13 @@ wss.on("connection", (ws, request) => {
   }
 
   function handleHomepageJoin(msg:ClientMessage) {
-    console.log("Someone is on the homepage")
+    onHomepage = true
 
     // add the client to the list of clients on the homepage
-    homepageClients.push({
-      id: clientId,
-      websocket:ws
-    })
+    homepageClients.set(clientId, ws)
 
     // get the list of games together
-    const gameList = []
+    const gameList:Array<GameInfo> = []
     for (const [gameId, game] of games.entries()){
       const gameInfo = {
         id: gameId,
@@ -288,6 +294,10 @@ wss.on("connection", (ws, request) => {
         console.log("Game ended because someone left!")
         endGame();
       }
+    }
+
+    if (onHomepage) {
+      homepageClients.delete(clientId)
     }
   });
 });

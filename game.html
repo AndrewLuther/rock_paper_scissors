@@ -2,8 +2,6 @@
     <link rel="stylesheet" href="/main.css" />
 </head>
 
-
-
 <div class="main" id="main">
 
     <div class="gameInfoSection">
@@ -25,21 +23,6 @@
 
 
 </div>
-
-
-<!-- 
-<div class= "gameInfo" id="gameInfo">
-    <div class= "gameInfoSection" id="clientInfo">
-        <h2 class="gameInfoSectionLabel">client id: </h2>
-        <p class="clientId" id="clientId"></p>
-    </div>
-    <div class= "gameInfoSection" id="numPlayersInfo">
-        <h2 class="gameInfoSectionLabel">players:</h2>
-        <p class="numPlayers", id="numPlayers">1</p>
-    </div>
-</div> -->
-
-
 
 <script>
     const messages  = []
@@ -135,8 +118,6 @@
 
     // START websocket message handlers //
     function handleHello(data) {
-        clientId = data.clientId
-        document.getElementById("clientId").innerText = data.clientId
         document.getElementById("numPlayers").innerText = data.players.length
     }
 
