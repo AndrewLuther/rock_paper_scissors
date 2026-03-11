@@ -92,6 +92,7 @@ wss.on("connection", (ws, request) => {
   }
 
   function broadcastAll(msg:object) {
+    console.log("broadcasting", msg)
     game.clients.forEach((client) => {
       client.websocket.send(JSON.stringify(msg))
     })
@@ -122,7 +123,7 @@ wss.on("connection", (ws, request) => {
     const player1Selection = game.selections[client1.id];
     const player2Selection = game.selections[client2.id];
 
-    let winner
+    let winner:string|undefined
 
     if (didPlayerWin(player1Selection, player2Selection)) {
       winner = client1.id
@@ -135,13 +136,16 @@ wss.on("connection", (ws, request) => {
       console.log("It's a draw!")
     }
 
-    game.selections = {};
-
     const resultMessage = {
       winner,
-      type: "result"
+      type: "result",
+      selections: game.selections
     }
+
     broadcastAll(resultMessage)
+
+    game.selections = {};
+    
   }
 
   function didPlayerWin(selection:"rock" | "paper" | "scissors", otherSelection:"rock" | "paper" | "scissors") {
@@ -213,6 +217,7 @@ wss.on("connection", (ws, request) => {
       game.id + " has selected " + msg.optionName + "!")
 
     game.selections[msg.clientId] = msg.optionName
+    console.log(game.selections)
 
     if (Object.keys(game.selections).length == 2) {
       calculateResult()

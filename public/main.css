@@ -51,15 +51,7 @@ body {
     margin-right: 2rem;
 }
 
-.messageLog {
-    width: 40%;
-    background: #e4bca0;
-    height: 12rem;
-    border-radius: 1rem;
-    display: flex;
-    align-items: flex-end;
-    flex-direction: column;
-}
+
 
 button {
     background-color: #ffd9b0;
@@ -77,14 +69,7 @@ button:hover {
     transition: 0.2s;
 }
 
-.gameInfoSection {
-    display: flex;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-    justify-content: space-between;
-    width: 90%;
-    margin: auto;
-}
+
 
 .clientId {
     align-self: center;
@@ -110,20 +95,32 @@ button:hover {
 
 .gameElements {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: space-evenly;
+    padding-bottom: 2rem;
 }
 
 .gameButton {
-    margin: 2rem;
-    width: auto;
-    height: auto;
-    flex-direction: column;
+    display: flex;
+    justify-content: center;
     align-items: center;
+    width:30%;
 }
 
 .main {
     display:flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameInfoSection {
+    display: flex;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    align-items: stretch;
+    justify-content: space-between;
+    width: 90%;
 }
 
 .gameInfo {
@@ -131,16 +128,26 @@ button:hover {
     border-radius: 1rem;
     width: 40%;
     display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
 }
 
+.messageLog {
+    width: 40%;
+    background: #e4bca0;
+    border-radius: 1rem;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    height:12rem;
+}
+
 .gameUI {
-    height: 30rem;
     display: flex;
     background: #e4bca0;
     border-radius: 1rem;
     width: 90%;
-    margin: auto;
     flex-direction: column;
 }
 
@@ -151,8 +158,9 @@ button:hover {
 }
 
 .gameInfoText {
+    display: flex;
     align-items: center;
-    text-align: center;
+    justify-content: center;
     padding: 1rem;
 }
 

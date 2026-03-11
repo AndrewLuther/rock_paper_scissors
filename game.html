@@ -119,6 +119,7 @@
     // START websocket message handlers //
     function handleHello(data) {
         document.getElementById("numPlayers").innerText = data.players.length
+        clientId = data.clientId
     }
 
     function handleJoin(data) {
@@ -154,20 +155,31 @@
 
     function handleResult(data) {
         console.log(data.winner)
+        const yourSelection = data.selections[clientId]
+        let otherSelection; 
+
+        for (const [key, value] of Object.entries(data.selections)) {
+            if (key !== clientId) {otherSelection = value}
+        }
+
+        let result_message = "You chose " + yourSelection + " and the opponent chose " + otherSelection + ". ";
         if (data.winner) {
             if (clientId == data.winner) {
-                console.log("You win!")
-                createMessage("You win!")
+                result_message += "You win!"
             } else {
-                console.log("You lose!")
-                createMessage("You lose!")
+                result_message += "You lose!"
             }
         } else {
-            console.log("It's a tie!")
-            createMessage("It's a tie!")
+            result_message += "It's a tie!"
         }
-        addGameOptions()
-        updateGameInfoText("Choose your weapon!")
+        console.log(result_message)
+        createMessage(result_message)
+        updateGameInfoText(result_message)
+
+        setTimeout(() => {
+            addGameOptions()
+            updateGameInfoText("Choose your weapon!")
+        }, 2000);
     }
 
     // END websocket message handlers //
