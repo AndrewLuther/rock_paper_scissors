@@ -44,6 +44,11 @@
         }
     }
 
+    function handleGameDelete(data) {
+        const gameDiv = document.getElementById(data.gameId)
+        gameDiv.remove()
+    }
+
     // Listen for messages
     socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data)
@@ -57,6 +62,9 @@
                 break;
             case "playerNumberUpdate":
                 handleGameJoin(data)
+                break;
+            case "gameDelete":
+                handleGameDelete(data)
                 break;
             default:
                 console.log("Unknown message type")

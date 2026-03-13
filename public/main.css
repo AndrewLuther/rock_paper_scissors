@@ -164,8 +164,27 @@ button:hover {
     padding: 1rem;
 }
 
+.splitGameInfoText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    width: 50%
+}
+
+.standardFlexDiv {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .weaponImage {
     width:75%;
+}
+
+.weaponImage2 {
+    width:30%;
 }
 
 .fade-in {

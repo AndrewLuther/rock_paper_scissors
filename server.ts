@@ -299,6 +299,16 @@ wss.on("connection", (ws, request) => {
         console.log("Game ended because someone left!")
         endGame();
       }
+
+      // remove this game from the list of games if there is no one in it anymore
+      if (game.clients.size == 0) {
+        const gameDeleteMessage = {
+          type: "gameDelete",
+          gameId: game.id
+        }
+        broadcastHomepage(gameDeleteMessage)
+        games.delete(game.id)
+      }
     }
 
     if (onHomepage) {
