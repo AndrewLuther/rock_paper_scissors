@@ -52,8 +52,17 @@ app.get("/", (req, res) => {
 app.get("/game/:id", (req, res) => {
   const game = createGame(req.params.id);
 
-  console.log(req.params.id);
-  res.sendFile(path.join(import.meta.dirname, "game.html"));
+  console.log(game.clients.size)
+
+  if (game.clients.size == 2) {
+    console.log("someone tried to join a full game")
+    res.sendFile(path.join(import.meta.dirname, "error.html"))
+
+  } else {
+    res.sendFile(path.join(import.meta.dirname, "game.html"));
+  }
+
+  
 });
 
 app.post("/api/create-game", (req, res) => {

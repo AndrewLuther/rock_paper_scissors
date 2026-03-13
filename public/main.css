@@ -28,18 +28,30 @@ body {
 }
  
 .games {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
-    background: #e4bca0;
-    margin: 2rem;
+    background: var(--main-bg-color);
     border-radius: 0.5rem;
+    flex-direction: column;
+    padding: 1rem;
 }
 
 .game {
     padding: 1rem;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    background: var(--panel-bg-color);
+    border-radius: 0.5rem;
+    width: 90%;
+    margin-top: 1rem;
+    border-color: var(--text-color);
+    border-style: solid;
+    box-shadow: 6px 6px 0px 0px;
+    border-width: 3px;
 }
 
 .gameTitle {
@@ -56,19 +68,27 @@ body {
 button {
     background-color: #ffd9b0;
     border-radius: .5rem;
-    border-color: brown;
-    border-style: dashed;
-    border-bottom-color: brown;
-    color: brown;
+    border-color: var(--text-color);
+    border-style: solid;
+    border-bottom-color: var(--text-color);
+    color: var(--text-color);
     transition: 0.2s;
-    
+    padding: .4rem;
+    box-shadow: 4px 4px 0px 0px;
 }
 
-button:hover {
-    box-shadow: inset 0px 0px 8px 0px brown;
+button:enabled:hover {
+    box-shadow: 1px 1px 0px 0px var(--text-color);
     transition: 0.2s;
 }
 
+button:disabled {
+    background-color: gray;
+    border-color: darkgray;
+    border-radius: .5rem;
+    border-style: solid;
+    color: #a8a8a8;
+}
 
 
 .clientId {
@@ -131,6 +151,10 @@ button:hover {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    border-color: var(--text-color);
+    border-style: solid;
+    box-shadow: 6px 6px 0px 0px;
+    border-width:3px;
 }
 
 .messageLog {
@@ -140,7 +164,11 @@ button:hover {
     display: flex;
     align-items: flex-end;
     flex-direction: column;
-    height:12rem;
+    height: 12rem;
+    border-color: var(--text-color);
+    border-style: solid;
+    box-shadow: 6px 6px 0px 0px;
+    border-width: 3px;
 }
 
 .gameUI {
@@ -149,6 +177,10 @@ button:hover {
     border-radius: 1rem;
     width: 90%;
     flex-direction: column;
+    border-color: var(--text-color);
+    border-style: solid;
+    box-shadow: 6px 6px 0px 0px;
+    border-width:3px;
 }
 
 .players {
@@ -185,6 +217,18 @@ button:hover {
 
 .weaponImage2 {
     width:30%;
+}
+
+.gamelistHeader {
+
+}
+
+.gameListHeaderText {
+
+}
+
+.gameListHeaderDivider {
+    
 }
 
 .fade-in {

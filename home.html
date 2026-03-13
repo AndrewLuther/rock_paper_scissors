@@ -4,9 +4,15 @@
 
 
 <h1 class="header">rock paper scissors</h1>
+
 <div class="create-game">
     <button id="create" class="create-game-button">create game</button>
 </div>
+
+<!-- <div class="gamelistHeader">
+    <div class="gameListHeaderText">Active Games</div>
+    <div class="gameListHeaderDivider"></div>
+</div> -->
 
 <div id="games" class="games"></div>
 <script>
@@ -34,12 +40,16 @@
         gamesDiv.appendChild(div)
     }
 
-    function handleGameJoin(data) {
+    function handlePlayerNumberUpdate(data) {
         const gamesDiv = document.getElementById("games");
         for (const gameDiv of gamesDiv.children) {
             if (gameDiv.id === data.gameid) {
                 const gamePlayers = gameDiv.getElementsByClassName("gamePlayers")[0]
                 gamePlayers.innerText = "players: " + data.numClients + "/2";
+                const joinButton = gameDiv.getElementsByClassName("joinGameButton")[0]
+                console.log(joinButton)
+                if (data.numClients < 2) {joinButton.disabled = false}
+                if (data.numClients >= 2) {joinButton.disabled = true}
             } 
         }
     }
@@ -61,7 +71,7 @@
                 handleNewGame(data)
                 break;
             case "playerNumberUpdate":
-                handleGameJoin(data)
+                handlePlayerNumberUpdate(data)
                 break;
             case "gameDelete":
                 handleGameDelete(data)
@@ -82,11 +92,15 @@
         gameTitle.className = "gameTitle"
 
         const joinGameButton = document.createElement("button")
+        joinGameButton.className = "joinGameButton"
         joinGameButton.innerText = "join game"
         joinGameButton.id = gameObject.id + "JoinButton"
         joinGameButton.addEventListener("click", () => {
             window.location = "/game/" + gameObject.id
         })
+        if (gameObject.numPlayers >= 2) {
+            joinGameButton.disabled = true
+        }
 
         const playerCount = document.createElement("p");
         playerCount.innerText = "players: " + gameObject.numPlayers + "/2";
