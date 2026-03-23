@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsx watch server.js"
+    "build:game": "esbuild ./src/game.ts --bundle --outfile=./public/js/game.js",
+    "build:home": "esbuild ./src/home.ts --bundle --outfile=./public/js/home.js",
+    "start:server": "tsx watch server.ts",
+    "start": "concurrently 'npm run start:server' 'npm run build:game -- --watch' 'npm run build:home -- --watch'" 
+
   },
   "repository": {
     "type": "git",
@@ -26,6 +30,8 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/ws": "^8.18.1",
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.27.4",
     "nodemon": "^3.1.11",
     "tsx": "^4.21.0"
   }
