@@ -9,8 +9,9 @@
     "build:game": "esbuild ./src/game.ts --bundle --outfile=./public/js/game.js",
     "build:home": "esbuild ./src/home.ts --bundle --outfile=./public/js/home.js",
     "start:server": "tsx watch server.ts",
-    "start": "concurrently 'npm run start:server' 'npm run build:game -- --watch' 'npm run build:home -- --watch'" 
-
+    "start": "concurrently 'npm run start:server' 'npm run build:game -- --watch' 'npm run build:home -- --watch'", 
+    "build": "npm run build:game && npm run build:home",
+    "prod": "tsx server.ts"
   },
   "repository": {
     "type": "git",
