@@ -16,7 +16,7 @@ Once two players are inside of the same game room, the game will automatically b
   <img src="public/images/scissors.png" width="30%" />
 </p>
 
-Once both players have made a selection, an animation will be played showing what they selected and what the opponent selected. The result will be displayed, and then the players will have the option to continue playing again. Once both players leave the game room, the room is atuomatically removed from the server and a new one must be created.
+Once both players have made a selection, an animation will be played showing what they selected and what the opponent selected. The result will be displayed, and then the players will have the option to continue playing again. Once both players leave the game room, the room is automatically removed from the server and a new one must be created.
 
 ## How/why was it made?
 
