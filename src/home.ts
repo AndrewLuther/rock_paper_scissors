@@ -9,7 +9,8 @@ import {
 } from "./shared";
 
 // Create WebSocket connection.
-const socket = new WebSocket("ws://" + window.location.host);
+// TODO dynamically check if ws or wss based on local or prod
+const socket = new WebSocket("wss://" + window.location.host);
 socket.addEventListener("open", (event) => {
   const clientInfo = {
     type: "homepageJoin",
