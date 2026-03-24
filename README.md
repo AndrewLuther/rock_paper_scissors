@@ -32,7 +32,7 @@ When finishing up the project, I converted all javascript to typescript. To acco
 
 - [esbuild](https://esbuild.github.io/) allows the frontend code to be written in typescript by bundleing it and outputting javascript files to the public folder, which are referenced by script tags in the HTML pages.
 
-## Running the code locally
+## How can I run it locally?
 
 After installing [node](https://nodejs.org/en), all project dependencies (specified in [package.json](package.json)) may be installed using:
 
@@ -44,7 +44,7 @@ To host the project locally, run:
 
 As specified in [package.json](package.json), this command will use [concurrently](https://www.npmjs.com/package/concurrently) to both start the backend server using [tsx](https://tsx.is/) and bundle the frontend typescript with [esbuild](https://esbuild.github.io/). The application can then be viewed at localhost:3000. Using multiple tabs/windows will simulate multiple users. The `--watch` flag is added to all commands, so that local changes to the code are accounted for automatically.
 
-## Running the code in production
+## How are you hosting it?
 
 Currently the project is running on my personal [digitalocean droplet](https://www.digitalocean.com/products/droplets). It is packaged using [docker](https://www.docker.com/), which runs the build using `npm run build` (bundles the frontend ts to js) and then `npm run prod` (runs the server).
 
