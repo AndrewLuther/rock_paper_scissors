@@ -16,7 +16,7 @@ const messages: Array<HTMLElement> = [];
 let messageNum = 0;
 
 // Create WebSocket connection.
-const socket = new WebSocket("ws://localhost:3000");
+const socket = new WebSocket("ws://" + window.location.host);
 
 const gameId = window.location.pathname.split("/").slice(-1)[0];
 let clientId: ClientId | undefined = undefined; // this gets set when hello payload is received from server
