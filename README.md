@@ -30,7 +30,7 @@ When finishing up the project, I converted all javascript to typescript. To acco
 
 - [tsx](https://tsx.is/) allows the backend server code to be written in typescript by automatically converting it to javascript at runtime.
 
-- [esbuild](https://esbuild.github.io/) allows the frontend code to be written in typescript by bundleing it and outputting javascript files to the public folder, which are referenced by script tags in the HTML pages.
+- [esbuild](https://esbuild.github.io/) allows the frontend code to be written in typescript by bundling it and outputting javascript files to the public folder, which are referenced by script tags in the HTML pages.
 
 ## How can I run it locally?
 
